@@ -24,7 +24,7 @@ library(limma)
 
 files <- c(".grp", ...)
 
-files2 <- c(".gpr", ...) # second file has an error
+files2 <- c(".gpr", ...) 
 
 
 # Store directory paths

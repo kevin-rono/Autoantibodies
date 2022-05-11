@@ -15,7 +15,7 @@ library(devtools)
 library(forcats)
 
 # load package w/o installing
-load_all('/Volumes/home/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/TCR/immunarch') # replace with path to `immunarch` folder
+load_all('/immunarch) # replace with path to `immunarch` folder
 ```
 
 
@@ -27,7 +27,7 @@ memory.limit(8000000)
 memory.size()
 
 # Data Loading
-path <- "/Volumes/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/TCR/TCRB ImmunoSEQ Results 1 of 2"
+path <- "/directory"
 
 # path argument is a path to the folder with your file or files including metadata file also (if you have one).
 TCR_immdata <- repLoad(path)

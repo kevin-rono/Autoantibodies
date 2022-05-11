@@ -1,2 +1,2 @@
 # Autoantibodies
-CPSC 490: Senior Project
+Yale University, CPSC 490: Senior Project

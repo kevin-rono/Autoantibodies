@@ -1,0 +1,128 @@
+---
+title: "Protecting me from myself: Autoantibodies"
+author: "Kevin Y. Rono"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+**Loading Limma**
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("limma")
+
+library(limma)
+```
+
+**Loading Files**
+```{r}
+
+# Store file names
+
+files <- c("new-9001409_2016-09-29_0079_Control_992.gpr", "new-9001408_2016-09-29_0080_Control_1044.gpr", "new-9001410_2016-09-29_0078_Control_990.gpr", "new-9001411_2016-09-29_0077_Control_973.gpr", "new-9001412_2016-09-29_0076_Control_900.gpr", "new-9001413_2016-09-28_0035_R5714.gpr", "new-9001414_2016-09-28_0031_AIC171.gpr", "new-9001415_2016-09-28_0034_R4129.gpr", "new-9001416_2016-09-28_0033_R3368.gpr", "new-9001417_2016-09-28_0032_AIC178.gpr", "new-9001418_2016-09-28_0040_2082.gpr", "new-9001419_2016-09-28_0039_P0162.gpr", "new-9001420_2016-09-28_0038_AIC173.gpr", "new-9001421_2016-09-28_0037_2220.gpr", "new-9001422_2016-09-28_0036_R6696.gpr", "new-9001423_2016-09-28_0006_2031.gpr", "new-9001424_2016-09-28_0005_2025.gpr", "new-9001425_2016-09-28_0004_2024.gpr", "new-9001426_2016-09-28_0003_2023.gpr", "new-9001427_2016-09-28_0002_P01 2.gpr", "new-9001428_2016-09-28_0011_2228.gpr", "new-9001429_2016-09-28_0010_2221.gpr", "new-9001430_2016-09-28_0009_2077.gpr", "new-9001431_2016-09-28_0008_2068.gpr", "new-9001432_2016-09-28_0007_2050.gpr", "new-9001433_2016-09-28_0016_AIC202.gpr", "new-9001434_2016-09-28_0015_AIC201.gpr", "new-9001435_2016-09-28_0014_AIC179.gpr", "new-9001436_2016-09-28_0013_AIC160.gpr", "new-9001437_2016-09-28_0012_2229.gpr", "new-9001438_2016-09-28_0021_AIC185.gpr", "new-9001439_2016-09-28_0020_AIC181.gpr", "new-9001440_2016-09-28_0019_AIC162.gpr", "new-9001441_2016-09-28_0018_2017.gpr", "new-9001442_2016-09-28_0017_R2835.gpr", "new-9001443_2016-09-28_0043_2045.gpr", "new-9001444_2016-09-28_0042_2092.gpr", "new-9001445_2016-09-28_0041_2087.gpr", "new-9001446_2016-09-28_0023_8913-2021.gpr", "new-9001447_2016-09-28_0022_R6148.gpr", "new-9001448_2016-09-28_0048_A-1004.gpr", "new-9001449_2016-09-28_0047_A-1003.gpr", "new-9001450_2016-09-28_0046_A-1002.gpr", "new-9001451_2016-09-28_0045_A-1001.gpr", "new-9001452_2016-09-28_0044_2085.gpr", "new-9001453_2016-09-29_0053_A-1009.gpr", "new-9001454_2016-09-29_0052_A-1008.gpr", "new-9001455_2016-09-29_0051_A-1007.gpr", "new-9001456_2016-09-28_0050_A-1006.gpr", "new-9001457_2016-09-28_0049_A-1005.gpr", "new-9001458_2016-09-29_0058_Control_345.gpr", "new-9001459_2016-09-29_0057_Control_282.gpr", "new-9001460_2016-09-29_0056_Control_254.gpr", "new-9001461_2016-09-29_0055_Control_249.gpr", "new-9001462_2016-09-29_0054_A-1010.gpr", "new-9002023_2016-09-29_0068_Control_807.gpr", "new-9002068_2016-09-29_0072_Control_869.gpr", "new-9002069_2016-09-29_0073_Control_872.gpr", "new-9002070_2016-09-29_0071_Control_851.gpr", "new-9002071_2016-09-29_0070_Control_838.gpr", "new-9002072_2016-09-29_0069_Control_810.gpr", "new-9002073_2016-09-29_0075_Control_881.gpr", "new-9002074_2016-09-29_0074_Control_874.gpr", "new-9002449_2016-09-29_0067_Control_689.gpr", "new-9002450_2016-09-29_0066_Control_686.gpr", "new-9002451_2016-09-29_0065_Control_636.gpr", "new-9002452_2016-09-29_0064_Control_635.gpr", "new-9002453_2016-09-29_0063_Control_568.gpr", "new-9002469_2016-09-29_0090_SECONDARY_ONLY.gpr", "new-9002470_2016-09-29_0089_Control_1099.gpr", "new-9002471_2016-09-29_0088_Control_1098.gpr", "new-9002472_2016-09-29_0087_Control_1085.gpr", "new-9002473_2016-09-29_0086_Control_1075.gpr", "new-9002474_2016-09-29_0085_Control_1073.gpr", "new-9002475_2016-09-29_0084_Control_1070.gpr", "new-9002476_2016-09-29_0083_Control_1058.gpr", "new-9002477_2016-09-29_0082_Control_1053.gpr", "new-9002478_2016-09-29_0081_Control_1051.gpr", "new-9002480_2016-09-29_0062_Control_532.gpr", "new-9002481_2016-09-29_0061_Control_513.gpr", "new-9002482_2016-09-29_0060_Control_504.gpr", "new-9002483_2016-09-29_0059_Control_354.gpr", "new-9002520_2016-09-28_0001_8913-2015.gpr", "new-9002521_2016-09-28_0030_2047.gpr", "new-9002522_2016-09-28_0029_2218.gpr", "new-9002523_2016-09-28_0028_2140.gpr", "new-9002524_2016-09-28_0027_2065.gpr", "new-9002525_2016-09-28_0026_2022.gpr", "new-9002526_2016-09-28_0025_AIC191.gpr", "new-9002527_2016-09-28_0024_2236.gpr")
+
+files2 <- c("9001408_2016-09-29_0080_Control_1044.gpr", "new-9001408_2016-09-29_0080_Control_1044.gpr") # second file has an error
+
+
+# Store directory paths
+
+path <- "/Volumes/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/AutoAb/Lupus/GPR_092716_Lupus_IgG-IgM/Other/Preprocessed1"
+path2 <- "/Volumes/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/AutoAb/Lupus/GPR_092716_Lupus_IgG-IgM/Test/"
+
+
+# Debugging attempts
+
+columns <- list(R  = "GenePix:F635 Mean", G  = "GenePix:F532 Mean", Rb = "GenePix:B635 Median", Gb = "GenePix:B532 Median")
+scan("/Volumes/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/AutoAb/Lupus/GPR_092716_Lupus_IgG-IgM/Other/Preprocessed1/new-9001409_2016-09-29_0079_Control_992.gpr", nlines = 1, what = "c", sep = "\t", skip=34)
+
+```
+
+
+**Loading Data**
+```{r}
+# Read data
+RG <- read.maimages("9001408_2016-09-29_0080_Control_1044.gpr", source="genepix", path=path2)
+
+# Check to see if the genes component has been set.
+names(RG$genes)
+
+# Read GAL file
+RG$genes <- readGAL("/Volumes/BlenmanSandbox-CC1407-MEDCCC/KR Spring 2022/AutoAb/Lupus/HuProt_v4.0_Standard_Gal_Updated_04302019.gal")
+RG$genes[1:30,]
+
+RG$printer <- getLayout(RG$genes)
+
+```
+
+**Image plots**
+```{r}
+# It is interesting to look at the variation of background values over the array. Consider image plots of the red and green background for the first array
+?imageplot()
+imageplot(log2(RG$Rb[,1]), RG$printer, low="white", high="red")
+imageplot(log2(RG$Gb[,1]), RG$printer, low="white", high="green")
+
+length(log2(RG$Rb[,1])) # 48,386
+length(RG$printer) # 6*4*66*32 = 50,688
+
+
+# Image plot of the un-normalized log-ratios or M-values for the first array:
+MA <- normalizeWithinArrays(RG, method="none")
+imageplot(MA$M[,1], RG$printer, zlim=c(-3,3))
+```
+
+**MA Plots**
+```{r}
+# MA-plot plots the log-ratio of R vs G against the overall intensity of each spot.
+plotMD(MA)
+
+# Now we plot the individual MA-plots for each of the print-tip groups on this array, together with the loess curves which will be used for normalization
+plotPrintTipLoess(MA)
+
+# Normalization. 
+
+# Print-tip loess normalization:
+MA <- normalizeWithinArrays(RG)
+plotPrintTipLoess(MA)
+
+# The following plot shows overall boxplots of the M-values for the four arrays
+boxplot(MA$M~col(MA$M),names=colnames(MA$M))
+
+# scale normalize between the arrays
+MA <- normalizeBetweenArrays(MA,method="scale")
+boxplot(MA$M~col(MA$M),names=colnames(MA$M))
+```
+
+**Linear Model**
+```{r}
+# First setup an appropriate design matrix. The negative numbers in the design matrix indicate the dye-swaps
+design <- modelMatrix(targets, ref="wild type")
+design
+
+# Now fit a simple linear model for each gene. This has the effect of estimating the average M-value for each gene, adjusting for the dye-swaps.
+fit <- lmFit(MA,design)
+fit
+
+# Ordinary t-statistics for comparing mutant to wt could be computed by
+ordinary.t <- fit$coef / fit$stdev.unscaled / fit$sigma
+
+# We prefer though to use empirical Bayes moderated t-statistics which are computed below.
+# Now create an mean difference plot displaying the log-fold-changes and average A-values for each gene.
+plotMD(fit)
+abline(0,0,col="blue")
+```
+
+**Empirical Bayes analysis**
+```{r}
+# We will now go on and compute empirical Bayes statistics for differential expression. The moderated t-statistics use sample standard deviations which have been squeezed towards a pooled standard deviation value.
+fit <- eBayes(fit)
+qqt(fit$t,df=fit$df.prior+fit$df.residual,pch=16,cex=0.2)
+abline(0,1)
+
+plotMD(fit)
+top30 <- order(fit$lods,decreasing=TRUE)[1:30]
+text(fit$Amean[top30],fit$coef[top30],labels=fit$genes[top30,"Name"],cex=0.8,col="blue")
+```
+
